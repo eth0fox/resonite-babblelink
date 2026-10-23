@@ -7,13 +7,13 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="ResoniteModLoader" Version="5.0.1" />
-        <PackageReference Include="Lib.Harmony" Version="2.4.2" />
+        <PackageReference Include="ResoniteModLoader" Version="5.0.1" ExcludeAssets="runtime" />
+        <PackageReference Include="Lib.Harmony" Version="2.4.2" ExcludeAssets="runtime" />
     </ItemGroup>
 
     <ItemGroup Condition="!Exists('$(ResonitePath)FrooxEngine.dll')">
-        <PackageReference Include="Resonite.GameLibs" Version="2026.9.18.82" />
-        <PackageReference Include="Rug.Osc" Version="1.2.5" />
+        <PackageReference Include="Resonite.GameLibs" Version="2026.9.18.82"  ExcludeAssets="runtime" />
+        <PackageReference Include="Rug.Osc" Version="1.2.5"  ExcludeAssets="runtime" />
     </ItemGroup>
     <ItemGroup Condition="Exists('$(ResonitePath)FrooxEngine.dll')">
         <Reference Include="FrooxEngine">
