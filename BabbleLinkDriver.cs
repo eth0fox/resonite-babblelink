@@ -29,40 +29,69 @@ public class SacrificialBabbleOSCDriver : BabbleOSC_Driver {
 
 public class BabbleLinkDriver : IInputDriver, IDisposable {
     public int UpdateOrder => 100;
+    
+    private ILogger logger = new() { Prefix = "[BFRLink] " };
+    private int babbleLinkPort;
+    public int BabbleLinkPort => babbleLinkPort;
     private BabbleLink link;
-
+    
+    private bool HasConnection;
+    private bool HasEyeTracking;
+    private bool HasMouthTracking;
     
     private SacrificialBabbleOSCDriver boscDriver = new();
     private Mouth mouth;
     private Eyes eyes;
 
-    private ILogger logger = new() { Prefix = "[BFRLink] " };
+    public BabbleLinkDriver(int port = 6767) {
+        babbleLinkPort = port;
+    }
     
-    private bool HasConnection;
-    private bool HasEyeTracking;
-    private bool HasMouthTracking;
 
 
     private void SetupBabbleLink() {
-        // TODO: the port is hardcoded on other side but should still let user configure
-        link = new BabbleLink(logger, 6767);
+        // As I don't think FrooxEngine supports dynamically unloading InputDrivers, we use port -1 as a special value
+        // to disable the BabbleLink interface dynamically at runtime.
+        if (babbleLinkPort < 0) return; 
+        BabbleLinkMod.Msg($"Setting up Babble Link listener on port {babbleLinkPort}");
+        link = new BabbleLink(logger, babbleLinkPort);
         
         // maybe TODO: but for now just always say we have eye & face tracking;
         link.Mode = () => (true, true, false);
-        link.ValueReceived += this.boscDriver.HandleUpdate;
-        link.SessionEnded += () => {
-            BabbleLinkMod.Warn("BFR session ended.");
-            HasConnection = false;
-            HasEyeTracking = false;
-            HasMouthTracking = false;
-        };
-        link.FeaturesReceived += (eye, face) => {
-            if (HasConnection == false || HasEyeTracking != eye || HasMouthTracking != face)
-                BabbleLinkMod.Msg($"BFR advertises: Eye: {eye} Face: {face}");
-            HasConnection = true;
-            HasEyeTracking = eye;
-            HasMouthTracking = face;
-        };
+        link.ValueReceived += boscDriver.HandleUpdate;
+        link.SessionEnded += LinkOnSessionEnded;
+        link.FeaturesReceived += LinkOnFeaturesReceived;
+    }
+
+    private void DisposeLink() {
+        link?.Teardown();
+        HasConnection = false;
+        HasEyeTracking = false;
+        HasMouthTracking = false;
+        link = null;
+    }
+
+    private void LinkOnFeaturesReceived(bool eye, bool face) {
+        if (HasConnection == false || HasEyeTracking != eye || HasMouthTracking != face)
+            BabbleLinkMod.Msg($"BFR advertises: Eye: {eye} Face: {face}");
+        HasConnection = true;
+        HasEyeTracking = eye;
+        HasMouthTracking = face;
+    }
+
+    private void LinkOnSessionEnded() {
+        BabbleLinkMod.Warn("BFR session ended.");
+        HasConnection = false;
+        HasEyeTracking = false;
+        HasMouthTracking = false;
+    }
+
+    public void ChangePort(int port) {
+        if (port == babbleLinkPort) return;
+        BabbleLinkMod.Msg($"Switching to port {port}");
+        DisposeLink();
+        babbleLinkPort = port;
+        SetupBabbleLink();
     }
 
     public void RegisterInputs(InputInterface inputInterface) {
@@ -113,7 +142,7 @@ public class BabbleLinkDriver : IInputDriver, IDisposable {
     }
     
     public void Dispose() {
-        link?.Teardown();
-        link = null;
+        BabbleLinkMod.Msg("👀See👀 you next time!");
+        DisposeLink();
     }
 }
