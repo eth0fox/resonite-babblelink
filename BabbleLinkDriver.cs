@@ -57,7 +57,8 @@ public class BabbleLinkDriver : IInputDriver, IDisposable {
             HasMouthTracking = false;
         };
         link.FeaturesReceived += (eye, face) => {
-            BabbleLinkMod.Msg($"BFR advertises: Eye: {eye} Face: {face}");
+            if (HasConnection == false || HasEyeTracking != eye || HasMouthTracking != face)
+                BabbleLinkMod.Msg($"BFR advertises: Eye: {eye} Face: {face}");
             HasConnection = true;
             HasEyeTracking = eye;
             HasMouthTracking = face;
