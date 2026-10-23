@@ -4,8 +4,9 @@
         <TargetFramework>net10.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Deterministic>true</Deterministic>
-        <Version>1.0.1</Version>
-        <Description>Resonite mod for that adds first-class support for the Babble Frame Runtime BabbleLink protocol without the need for VRCFT.</Description>
+        <Version>1.1.0</Version>
+        <AssemblyTitle>BabbleFrameRuntime Resonite Mod</AssemblyTitle>
+        <Product>Resonite mod for that adds first-class support for the Babble Frame Runtime BabbleLink protocol without the need for VRCFT.</Product>
         <Company>eth0fox</Company>
         <Copyright>(c) 2026 eth0fox. Licensed under a permissive license. See https://git.boxfox.es/fox/resonite-babblelink/src/branch/main/LICENSE</Copyright>
     </PropertyGroup>
